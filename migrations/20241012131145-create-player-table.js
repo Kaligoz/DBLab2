@@ -32,7 +32,8 @@ module.exports = {
           key: 'CharacterID',
         },
         onUpdate: 'CASCADE',
-        onDelete: 'SET NULL',
+        onDelete: 'CASCADE',
+        allowNull: true,
       },
     });
   },

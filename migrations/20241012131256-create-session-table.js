@@ -24,7 +24,7 @@ module.exports = {
           key: 'TeamID',
         },
         onUpdate: 'CASCADE',
-        onDelete: 'SET NULL',
+        onDelete: 'CASCADE',
       },
     });
   },

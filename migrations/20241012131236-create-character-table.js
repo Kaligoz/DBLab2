@@ -2,7 +2,7 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Character', {
       CharacterID: {
         type: Sequelize.INTEGER,
@@ -28,12 +28,12 @@ module.exports = {
           key: 'WeaponID',
         },
         onUpdate: 'CASCADE',
-        onDelete: 'SET NULL',
+        oonDelete: 'CASCADE',
       },
     });
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Character');
   }
 };
