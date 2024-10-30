@@ -1,5 +1,44 @@
+const { Op } = require('sequelize');  
+const { sequelize, Player, Character, Weapon, Session, Team } = require('./models');
+
+// Lazy Loading Example
+const lazyLoadCharacterForPlayer = async (playerID) => {
+  const player = await Player.findByPk(playerID);
+  const character = await player.getCharacter(); 
+  console.log('Lazy Loaded Character:', JSON.stringify(character, null, 2));
+};
+
+// Eager Loading Example
+const eagerLoadPlayersWithCharacters = async () => {
+  const players = await Player.findAll({
+    include: Character 
+  });
+  console.log('Eager Loaded Players with Characters:', JSON.stringify(players, null, 2));
+};
+
+// Explicit Loading Example
+const explicitLoadCharacterForPlayer = async (playerID) => {
+  const player = await Player.findByPk(playerID);
+  const character = await Character.findByPk(player.CharacterID);
+  console.log('Explicitly Loaded Character:', JSON.stringify(character, null, 2));
+};
+
+// Aggregation, Sorting, and Filtering Example
+const getAggregatedPlayerStats = async () => {
+  const [playerStats] = await sequelize.query(`
+    SELECT AVG(\`Character\`.\`Level\`) AS avgLevel, COUNT(\`Player\`.\`PlayerID\`) AS totalPlayers, \`Character\`.\`Class\`
+    FROM \`Player\`
+    JOIN \`Character\` ON \`Player\`.\`CharacterID\` = \`Character\`.\`CharacterID\`
+    WHERE \`Player\`.\`Registration_Date\` >= '2024-01-01'
+    GROUP BY \`Character\`.\`Class\`
+    ORDER BY avgLevel DESC;
+  `, { type: sequelize.QueryTypes.SELECT });
+
+  console.log('Aggregated Player Stats:', JSON.stringify(playerStats, null, 2));
+};
+
+
 const readline = require('readline');
-const { Player, Character, Weapon, Session, Team } = require('./models');
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -20,6 +59,10 @@ const menu = () => {
   console.log('10. Add to Session');
   console.log('11. Add to Team');
   console.log('12. Exit');
+  console.log('13. Lazy Load Character for Player');
+  console.log('14. Eager Load Players with Characters');
+  console.log('15. Explicit Load Character for Player');
+  console.log('16. View Aggregated Player Stats')
 
   rl.question('Enter your choice: ', async (choice) => {
     switch (choice) {
@@ -63,6 +106,22 @@ const menu = () => {
       case '12':
         rl.close();
         return;
+      case '13':
+        rl.question('Enter Player ID: ', async (playerID) => {
+          await lazyLoadCharacterForPlayer(playerID);
+        });
+        break;
+      case '14':
+          await eagerLoadPlayersWithCharacters();
+        break;
+      case '15':
+        rl.question('Enter Player ID: ', async (playerID) => {
+          await explicitLoadCharacterForPlayer(playerID);
+        });
+        break;
+      case '16':
+        await getAggregatedPlayerStats();
+        break;
       default:
         console.log('Invalid choice. Please try again.');
         break;
